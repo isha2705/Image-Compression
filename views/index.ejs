@@ -1,0 +1,196 @@
+<!-- Upload Section -->
+<div class="row mb-5">
+  <div class="col-lg-6">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Compress Image</h4>
+      </div>
+      <div class="card-body">
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="image" class="form-label">Select Image</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="quality" class="form-label">Quality (1-100)</label>
+            <input type="range" class="form-range" id="quality" name="quality" min="1" max="100" value="80">
+            <div class="d-flex justify-content-between">
+              <span>Lower Quality</span>
+              <span id="qualityValue">80</span>
+              <span>Higher Quality</span>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="width" class="form-label">Width (optional)</label>
+              <input type="number" class="form-control" id="width" name="width" placeholder="Original width">
+            </div>
+            <div class="col-md-6">
+              <label for="height" class="form-label">Height (optional)</label>
+              <input type="number" class="form-control" id="height" name="height" placeholder="Original height">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="format" class="form-label">Output Format</label>
+            <select class="form-select" id="format" name="format">
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+              <option value="avif">AVIF</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100">Compress Image</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-6">
+    <div class="card shadow">
+      <div class="card-header bg-info text-white">
+        <h4 class="mb-0">Analytics Overview</h4>
+      </div>
+      <div class="card-body">
+        <% if (analytics.count > 0) { %>
+          <div class="row text-center mb-4">
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Images Compressed</h5>
+                  <h2 class="text-primary"><%= analytics.count %></h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Avg. Compression</h5>
+                  <h2 class="text-success"><%= (analytics.totalCompression / analytics.count).toFixed(2) %>%</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Space Saved</h5>
+                  <h2 class="text-info"><%= formatBytes(analytics.totalSaved) %></h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <canvas id="formatChart"></canvas>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info">
+            <h5>No compression data yet</h5>
+            <p>Upload and compress your first image to see analytics.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Images Section -->
+<div class="card shadow">
+  <div class="card-header bg-success text-white">
+    <h4 class="mb-0">Recent Compressed Images</h4>
+  </div>
+  <div class="card-body">
+    <% if (images && images.length > 0) { %>
+      <div class="row">
+        <% images.slice(0, 8).forEach(image => { %>
+          <div class="col-md-3 mb-4">
+            <div class="card h-100">
+              <div class="image-container">
+                <img src="/compressed/<%= image.compressedFilename %>" class="card-img-top" alt="Compressed image">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title text-truncate"><%= image.format.toUpperCase() %></h5>
+                <p class="card-text">Compression: <%= image.compressionRatio %>%</p>
+                <p class="card-text">Size: <%= formatBytes(image.compressedSize) %></p>
+                <a href="/images/<%= image.id %>" class="btn btn-primary btn-sm">View Details</a>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="alert alert-info">
+        <p>No compressed images yet. Upload your first image to get started.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  // Update quality value when slider changes
+  document.getElementById('quality').addEventListener('input', function() {
+    document.getElementById('qualityValue').textContent = this.value;
+  });
+  
+  // Initialize charts when analytics data is available
+  <% if (analytics.count > 0) { %>
+    window.addEventListener('load', async function() {
+      try {
+        const response = await fetch('/api/analytics');
+        const data = await response.json();
+        
+        // Format chart for image types
+        const formatCtx = document.getElementById('formatChart').getContext('2d');
+        const formatLabels = Object.keys(data.formatsData);
+        const formatValues = Object.values(data.formatsData);
+        const formatColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'];
+        
+        new Chart(formatCtx, {
+          type: 'doughnut',
+          data: {
+            labels: formatLabels.map(format => format.toUpperCase()),
+            datasets: [{
+              data: formatValues,
+              backgroundColor: formatColors.slice(0, formatLabels.length),
+              hoverBackgroundColor: formatColors.slice(0, formatLabels.length).map(color => color + 'dd'),
+              hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+          },
+          options: {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              title: {
+                display: true,
+                text: 'Image Formats'
+              }
+            },
+            cutout: '70%'
+          }
+        });
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+      }
+    });
+  <% } %>
+</script>
+
+<%
+  // Helper function to format bytes
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+%> 
