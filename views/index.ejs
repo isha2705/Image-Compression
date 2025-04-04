@@ -1,0 +1,123 @@
+<!-- Upload Section -->
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><span class="nav-icon">🔍</span> Compress Image</h4>
+      </div>
+      <div class="card-body">
+        <div class="text-center mb-4">
+          <div class="display-icon mb-3">🖼️</div>
+          <h5>Upload and compress your images with ease</h5>
+          <p class="text-muted">Reduce file size while maintaining quality</p>
+        </div>
+        
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <div class="mb-4">
+            <label for="image" class="form-label fw-bold">Select Image</label>
+            <div class="input-group">
+              <input type="file" class="form-control animated-input" id="image" name="image" accept="image/*" required>
+              <label class="input-group-text" for="image"><i class="bi bi-image"></i></label>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label for="quality" class="form-label fw-bold">Quality (1-100)</label>
+            <input type="range" class="form-range" id="quality" name="quality" min="1" max="100" value="80">
+            <div class="d-flex justify-content-between">
+              <span class="badge bg-danger">Lower Quality</span>
+              <span id="qualityValue" class="badge bg-primary">80</span>
+              <span class="badge bg-success">Higher Quality</span>
+            </div>
+          </div>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="width" class="form-label fw-bold">Width (optional)</label>
+              <div class="input-group">
+                <input type="number" class="form-control animated-input" id="width" name="width" placeholder="Original width">
+                <span class="input-group-text">px</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="height" class="form-label fw-bold">Height (optional)</label>
+              <div class="input-group">
+                <input type="number" class="form-control animated-input" id="height" name="height" placeholder="Original height">
+                <span class="input-group-text">px</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label for="format" class="form-label fw-bold">Output Format</label>
+            <select class="form-select animated-input" id="format" name="format">
+              <option value="jpeg">JPEG - Best for photos</option>
+              <option value="png">PNG - Best for transparency</option>
+              <option value="webp">WebP - Modern format with better compression</option>
+              <option value="avif">AVIF - Next-gen format with highest efficiency</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn-primary btn-lg w-100">
+            <i class="bi bi-magic"></i> Compress Image
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Update quality value when slider changes
+  document.getElementById('quality').addEventListener('input', function() {
+    const value = this.value;
+    const qualityValue = document.getElementById('qualityValue');
+    qualityValue.textContent = value;
+    
+    // Change badge color based on quality
+    qualityValue.className = 'badge';
+    if (value < 40) {
+      qualityValue.classList.add('bg-danger');
+    } else if (value < 70) {
+      qualityValue.classList.add('bg-warning');
+    } else {
+      qualityValue.classList.add('bg-success');
+    }
+  });
+</script>
+
+<style>
+  .display-icon {
+    font-size: 4rem;
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  .animated-input {
+    transition: all 0.3s ease;
+  }
+  
+  .animated-input:focus {
+    transform: scale(1.02);
+  }
+</style>
+
+<%
+  // Helper function to format bytes
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+%> 

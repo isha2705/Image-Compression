@@ -1,0 +1,208 @@
+<!-- Analytics Overview Section -->
+<div class="row">
+  <div class="col-lg-10 mx-auto">
+    <div class="card shadow">
+      <div class="card-header bg-info text-white">
+        <h4 class="mb-0">Analytics Overview</h4>
+      </div>
+      <div class="card-body">
+        <% if (analytics.count > 0) { %>
+          <div class="row text-center mb-4">
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Images Compressed</h5>
+                  <h2 class="text-primary"><%= analytics.count %></h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Avg. Compression</h5>
+                  <h2 class="text-success"><%= (analytics.totalCompression / analytics.count).toFixed(2) %>%</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Space Saved</h5>
+                  <h2 class="text-info"><%= formatBytes(analytics.totalSaved) %></h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                  <h5 class="mb-0">Image Formats Distribution</h5>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <canvas id="formatChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-6">
+              <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                  <h5 class="mb-0">Compression Efficiency</h5>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container">
+                    <canvas id="compressionChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header bg-warning text-white">
+              <h5 class="mb-0">Size Comparison Over Time</h5>
+            </div>
+            <div class="card-body">
+              <div class="chart-container" style="height: 300px;">
+                <canvas id="sizeChart"></canvas>
+              </div>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="alert alert-info">
+            <h5>No compression data yet</h5>
+            <p>Upload and compress your first image to see analytics.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize charts when analytics data is available
+  <% if (analytics.count > 0) { %>
+    window.addEventListener('load', async function() {
+      try {
+        const response = await fetch('/api/analytics');
+        const data = await response.json();
+        
+        // Format chart for image types
+        const formatCtx = document.getElementById('formatChart').getContext('2d');
+        const formatLabels = Object.keys(data.formatsData);
+        const formatValues = Object.values(data.formatsData);
+        const formatColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'];
+        
+        new Chart(formatCtx, {
+          type: 'doughnut',
+          data: {
+            labels: formatLabels.map(format => format.toUpperCase()),
+            datasets: [{
+              data: formatValues,
+              backgroundColor: formatColors.slice(0, formatLabels.length),
+              hoverBackgroundColor: formatColors.slice(0, formatLabels.length).map(color => color + 'dd'),
+              hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+          },
+          options: {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              title: {
+                display: true,
+                text: 'Image Formats'
+              }
+            },
+            cutout: '70%'
+          }
+        });
+        
+        // Compression ratio chart
+        const compressionCtx = document.getElementById('compressionChart').getContext('2d');
+        const sortedByRatio = [...data.sizesData].sort((a, b) => b.ratio - a.ratio).slice(0, 10);
+        
+        new Chart(compressionCtx, {
+          type: 'bar',
+          data: {
+            labels: sortedByRatio.map(item => item.id.substring(0, 8)),
+            datasets: [{
+              label: 'Compression Ratio (%)',
+              data: sortedByRatio.map(item => item.ratio),
+              backgroundColor: '#1cc88a',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+        
+        // Size comparison chart
+        const sizeCtx = document.getElementById('sizeChart').getContext('2d');
+        const recentImages = data.sizesData.slice(-10);
+        
+        new Chart(sizeCtx, {
+          type: 'line',
+          data: {
+            labels: recentImages.map(item => item.date),
+            datasets: [
+              {
+                label: 'Original Size (bytes)',
+                data: recentImages.map(item => item.original),
+                borderColor: '#e74a3b',
+                backgroundColor: 'rgba(231, 74, 59, 0.1)',
+                fill: true,
+                borderWidth: 2
+              },
+              {
+                label: 'Compressed Size (bytes)',
+                data: recentImages.map(item => item.compressed),
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                fill: true,
+                borderWidth: 2
+              }
+            ]
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+      }
+    });
+  <% } %>
+</script>
+
+<%
+  // Helper function to format bytes
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+%> 

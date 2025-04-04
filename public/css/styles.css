@@ -1,0 +1,250 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fd;
+  background-image: linear-gradient(315deg, #f8f9fd 0%, #eef1f5 74%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+main {
+  flex: 1;
+}
+
+/* Navbar Styles */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.bg-gradient-light {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  margin-right: 0.3rem;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.nav-item-glow {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-item-glow:hover {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.nav-item-glow:hover .nav-icon {
+  transform: scale(1.2);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Animation for navbar brand */
+.bounce-animation {
+  transition: transform 0.3s ease;
+}
+
+.bounce-animation:hover {
+  transform: scale(1.05);
+}
+
+.bounce-animation:hover .nav-icon {
+  animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-5px); }
+}
+
+/* Footer icon */
+.footer-icon {
+  font-size: 1.2rem;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+/* Image container */
+.image-container {
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f1f1;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.image-container img {
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease-in-out;
+}
+
+.image-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Chart container */
+.chart-container {
+  position: relative;
+  height: 250px;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Card styles */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Card header gradients */
+.card-header.bg-primary {
+  background: linear-gradient(135deg, #4e73df, #224abe) !important;
+}
+
+.card-header.bg-success {
+  background: linear-gradient(135deg, #1cc88a, #13855c) !important;
+}
+
+.card-header.bg-info {
+  background: linear-gradient(135deg, #36b9cc, #258391) !important;
+}
+
+.card-header.bg-warning {
+  background: linear-gradient(135deg, #f6c23e, #dda20a) !important;
+}
+
+.card-header.bg-danger {
+  background: linear-gradient(135deg, #e74a3b, #be2617) !important;
+}
+
+.card-header.bg-secondary {
+  background: linear-gradient(135deg, #858796, #60616f) !important;
+}
+
+/* Form styling */
+.form-range::-webkit-slider-thumb {
+  background-color: #4e73df;
+}
+
+.form-range::-moz-range-thumb {
+  background-color: #4e73df;
+}
+
+.form-control, .form-select {
+  border-radius: 5px;
+  box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.05);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #4e73df;
+  box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+}
+
+/* Button animations */
+.btn {
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.btn:hover::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(50, 50);
+    opacity: 0;
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4e73df, #224abe);
+  border: none;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #1cc88a, #13855c);
+  border: none;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #e74a3b, #be2617);
+  border: none;
+}
+
+/* Analytics cards */
+.card-title {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #5a5c69;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chart-container {
+    height: 200px;
+  }
+  
+  .image-container {
+    height: 160px;
+  }
+}
+
+/* Add Bootstrap Icons */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"); 

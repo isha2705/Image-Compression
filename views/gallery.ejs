@@ -1,0 +1,60 @@
+<!-- Gallery Section -->
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0">Recent Compressed Images</h4>
+      </div>
+      <div class="card-body">
+        <% if (images && images.length > 0) { %>
+          <div class="row">
+            <% images.forEach(image => { %>
+              <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                  <div class="image-container">
+                    <img src="/compressed/<%= image.compressedFilename %>" class="card-img-top" alt="Compressed image">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title text-truncate"><%= image.format.toUpperCase() %></h5>
+                    <p class="card-text">Compression: <%= image.compressionRatio %>%</p>
+                    <p class="card-text">Size: <%= formatBytes(image.compressedSize) %></p>
+                    <p class="card-text"><small class="text-muted">Uploaded: <%= new Date(image.uploadDate).toLocaleDateString() %></small></p>
+                    <div class="d-flex justify-content-between">
+                      <a href="/images/<%= image.id %>" class="btn btn-primary btn-sm">Details</a>
+                      <a href="/download/<%= image.id %>" class="btn btn-success btn-sm">Download</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+          
+          <% if (images.length === 0) { %>
+            <div class="alert alert-info">
+              <p>No compressed images yet. Upload your first image to get started.</p>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="alert alert-info">
+            <p>No compressed images yet. Upload your first image to get started.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%
+  // Helper function to format bytes
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+%> 
